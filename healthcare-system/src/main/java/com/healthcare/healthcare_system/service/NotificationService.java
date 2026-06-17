@@ -17,6 +17,8 @@ import com.twilio.type.PhoneNumber;
 
 import java.util.Map;
 
+import java.util.concurrent.CompletableFuture;
+
 @Service
 public class NotificationService {
 
@@ -167,16 +169,23 @@ public class NotificationService {
         logger.info("=================================================");
     }
 
-    // Unified dispatch wrapper
+    // Unified dispatch wrapper (Runs asynchronously in background thread)
     public Map<String, Object> dispatchNotifications(String recipientPhone, String recipientEmail, String contextMessage) {
-        logger.debug("📡 Dispatching notifications — phone: {}, email: {}", recipientPhone, recipientEmail);
+        logger.debug("📡 Dispatching notifications asynchronously — phone: {}, email: {}", recipientPhone, recipientEmail);
         
-        if (recipientPhone != null && !recipientPhone.isEmpty()) {
-            sendSmsNotification(recipientPhone, contextMessage);
-        }
-        if (recipientEmail != null && !recipientEmail.isEmpty()) {
-            sendEmailNotification(recipientEmail, "HealthCare+ Consultation Update", contextMessage);
-        }
+        CompletableFuture.runAsync(() -> {
+            try {
+                if (recipientPhone != null && !recipientPhone.isEmpty()) {
+                    sendSmsNotification(recipientPhone, contextMessage);
+                }
+                if (recipientEmail != null && !recipientEmail.isEmpty()) {
+                    sendEmailNotification(recipientEmail, "HealthCare+ Consultation Update", contextMessage);
+                }
+            } catch (Exception e) {
+                logger.error("Failed to async dispatch notifications: {}", e.getMessage(), e);
+            }
+        });
+
         return Map.of(
             "smsDelivered", recipientPhone != null && !recipientPhone.isEmpty(),
             "emailDelivered", recipientEmail != null && !recipientEmail.isEmpty(),
