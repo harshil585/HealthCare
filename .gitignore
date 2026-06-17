@@ -1,0 +1,30 @@
+# OS Files
+.DS_Store
+Thumbs.db
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Logs
+*.log
+healthcare-system/*.log
+frontend/*.log
+
+# Dependency Directories
+node_modules/
+target/
+build/
+dist/
+dist-ssr/
+
+# Environment Variables / Sensitive Configs
+.env
+.env.local
+.env.*
+*.env
