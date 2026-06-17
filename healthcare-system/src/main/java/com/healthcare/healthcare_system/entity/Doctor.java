@@ -51,7 +51,7 @@ public class Doctor {
     @Column(name = "gender")
     private String gender;
 
-    @Column(name = "profile_picture", columnDefinition = "LONGTEXT")
+    @Column(name = "profile_picture", columnDefinition = "TEXT")
     private String profilePicture;
 
     @Column(name = "average_rating")

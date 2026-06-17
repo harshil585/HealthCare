@@ -14,7 +14,7 @@ public class Patient {
     private String phone;
     private Integer age;
 
-    @Column(name = "profile_picture", columnDefinition = "LONGTEXT")
+    @Column(name = "profile_picture", columnDefinition = "TEXT")
     private String profilePicture;
 
     @ManyToOne
