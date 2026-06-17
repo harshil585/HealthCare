@@ -69,11 +69,12 @@ public class DatabaseSeeder implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) throws Exception {
-        // Programmatic schema migration to bypass Hibernate's limitation updating TEXT to LONGTEXT
+        // Schema migration: ensure TEXT columns are wide enough for base64 image data
+        // Uses PostgreSQL-compatible ALTER COLUMN ... TYPE syntax
         try {
-            System.out.println("=== SCHEMA UPGRADE: Altering profile_picture columns to LONGTEXT ===");
-            entityManager.createNativeQuery("ALTER TABLE patients MODIFY COLUMN profile_picture LONGTEXT").executeUpdate();
-            entityManager.createNativeQuery("ALTER TABLE doctors MODIFY COLUMN profile_picture LONGTEXT").executeUpdate();
+            System.out.println("=== SCHEMA UPGRADE: Ensuring profile_picture columns are TEXT ===");
+            entityManager.createNativeQuery("ALTER TABLE patients ALTER COLUMN profile_picture TYPE TEXT").executeUpdate();
+            entityManager.createNativeQuery("ALTER TABLE doctors ALTER COLUMN profile_picture TYPE TEXT").executeUpdate();
             System.out.println("=== SCHEMA UPGRADE SUCCESSFUL ===");
         } catch (Exception e) {
             System.out.println("=== SCHEMA UPGRADE INFO: " + e.getMessage() + " ===");
@@ -109,15 +110,8 @@ public class DatabaseSeeder implements CommandLineRunner {
                            ", Appointments=" + targetAppointmentsCount);
 
         // 1. Clear existing database tables in dependency order
+        // Uses JPA batch delete which works on both MySQL and PostgreSQL
         System.out.println("Clearing old data...");
-        entityManager.createNativeQuery("SET FOREIGN_KEY_CHECKS = 0").executeUpdate();
-        
-        entityManager.createNativeQuery("DROP TABLE IF EXISTS patient").executeUpdate();
-        entityManager.createNativeQuery("DROP TABLE IF EXISTS doctor").executeUpdate();
-        entityManager.createNativeQuery("DROP TABLE IF EXISTS hospital").executeUpdate();
-        entityManager.createNativeQuery("DROP TABLE IF EXISTS specialization").executeUpdate();
-        entityManager.createNativeQuery("DROP TABLE IF EXISTS review").executeUpdate();
-        entityManager.createNativeQuery("DROP TABLE IF EXISTS slot").executeUpdate();
 
         reviewRepository.deleteAllInBatch();
         reviewRepository.flush();
@@ -149,7 +143,6 @@ public class DatabaseSeeder implements CommandLineRunner {
         userRepository.deleteAllInBatch();
         userRepository.flush();
 
-        entityManager.createNativeQuery("SET FOREIGN_KEY_CHECKS = 1").executeUpdate();
         System.out.println("Database tables cleared successfully.");
 
         // 2. Seed Admin Users
