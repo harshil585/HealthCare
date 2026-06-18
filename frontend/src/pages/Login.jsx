@@ -132,7 +132,7 @@ const Login = () => {
         login({ userId: 3, id: 3, name: 'Test Patient', role: 'PATIENT', email: credentials.email }, 'mock-token');
         navigate('/patient/dashboard');
       } else {
-        setError(err.response?.data?.message || 'Invalid email or password. Use patient@test.com, doctor@test.com, or admin@test.com for testing.');
+        setError(err.response?.data?.message || 'Invalid email or password.');
       }
     } finally {
       setLoading(false);
